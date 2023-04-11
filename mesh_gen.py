@@ -1,5 +1,6 @@
 import numpy as np
 import math
+from matplotlib import pyplot as plt
 
 
 def intersection(line1, line2):
@@ -30,10 +31,9 @@ def intersection(line1, line2):
 
 def equidist_points(a, b, points):
     """Function to calculate the coordinates of equidistant points between two end points"""
-
-    point_x = np.linspace(a[0, :], b[0, :], points+1).reshape(points+1)
+    point_x = np.linspace(a[0], b[0], points+1).reshape(points+1)
     # print("print from here",point_x)
-    point_y = np.linspace(a[1, :], b[1, :], points+1).reshape(points+1)
+    point_y = np.linspace(a[1], b[1], points+1).reshape(points+1)
     point_mat = np.zeros((points+1, 2))
     point_mat[:, 0] = point_x
     point_mat[:, 1] = point_y
@@ -304,24 +304,47 @@ class platWithHole:
         self.ny = ny
         self.points_coord = points_coord
         self.el_type = el_type
-
     def coord_array(self):
-        print("fns for calculation of coord.")
+        # nx = 5, ny = 5, points_coord = [2, 0, 7, 0, 7, 7, 0, 7, 0, 2]
+        # Array of vertex points of the elements
+        x1 = self.points_coord[:2]
+        x2 = self.points_coord[2:4]
+        x3 = self.points_coord[4:6]
+        x4 = self.points_coord[6:8]
+        x5 = self.points_coord[8:10]
+        center = [0, 0]
+        radius = x1[0]
+
+        side2 = equidist_points(x2, x3, self.ny)
+        side5 = equidist_points(x3, x4, self.nx)
+
+        s_left = np.zeros((2*self.nx+1, 2));
+        s_right = np.zeros((2*self.nx+1, 2));
+
+        for i in range(2*self.nx+1):
+            angle_90 = (math.pi)/2
+            s_left[i, 0] = radius*math.cos(((angle_90)/(2*self.nx))*i)
+            s_left[i, 1] = radius*math.sin(((angle_90)/(2*self.nx))*i)
+        s_right[:self.nx,:] = side2[:self.nx,:]
+        s_right[self.nx:, :] = side5
+        coordinate_xy = np.zeros((2 * (self.nx + 1) * (self.ny + 1) - self.nx - 1, 2))
+        k = 0
+        for i in range(len(s_left)):
+            points = equidist_points(s_left[i], s_right[i], self.nx)
+            coordinate_xy[k:k+self.nx+1, :] = points
+            k = k+self.nx+1
+        return coordinate_xy
 
     def connectivity(self):
-
-        if self.el_type == 0:
-            nel = 2*self.nx * self.ny
-            connect = np.zeros((nel, 4), dtype = 'int64')
-            el = 0;
-            for i in range(2*self.ny):
-                for j in range(self.nx):
-                    nd1 = j+(self.nx+1)*i
-                    nd2 = nd1+1
-                    nd3 = nd2+(self.nx+1)
-                    nd4 = nd3-1
-                    connect[el, :] = np.array([nd1, nd2, nd3, nd4])
-                    el = el+1
-            return connect
-
-
+        nel = 2*self.nx * self.ny
+        connect = np.zeros((nel, 4), dtype = 'int64')
+        el = 0;
+        for i in range(2*self.ny):
+            for j in range(self.nx):
+                nd1 = j+(self.nx+1)*i
+                nd2 = nd1+1
+                nd3 = nd2+(self.nx+1)
+                nd4 = nd3-1
+                connect[el, :] = np.array([nd1, nd2, nd3, nd4])
+                el = el+1
+        return connect
