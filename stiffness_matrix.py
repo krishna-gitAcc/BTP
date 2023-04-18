@@ -82,6 +82,7 @@ def global_stiffness(coord, connect, E, nu, el_type, problem_type, ngp):
     #     K_temp[i, :, :] = K_par[i]
 
     K_temp = np.array(K_par)
+    # print(K_par)
 
     I = np.zeros((n_ele, K_temp.shape[1] ** 2))
     J = np.zeros((n_ele, K_temp.shape[1] ** 2))
