@@ -48,7 +48,7 @@ def solve_fem(N, E, nu, ngp2d, ngp1d, el_type, problem_type, domain_coord, b, T)
     # print("print k_reduced", K_reduced)
     f_reduced = f_global[dof_left, :] - ((K_global[dof_left]).tocsc()[:, dbc_dof]).tocsr().dot(u_prescribed)
     # f_reduced = f_global[dof_left]
-    print(f_reduced)
+    # print(f_reduced)
     # 6) Solving the system of equations
     u_reduced = spsolve(K_reduced, f_reduced).reshape(-1, 1)
 
