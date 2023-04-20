@@ -70,10 +70,11 @@ def solve_fem_plat_with_hole(N, E, nu, ngp2d, ngp1d, el_type, problem_type, doma
 
     #Drichle boundary condition.
     counter = 0
-    x_boundary = np.arange(0, N+1, 1);
-    y_boundary = np.arange(0, 2*(N+1)*(N+1)-N-1, N+1)
+
+    x_boundary = np.arange(0, N+1, 1)
+    y_boundary = np.arange(2 * N *(N + 1), 2*(N+1)*(N+1)-N-1, 1)
     # print(x_boundary, y_boundary)
-    disp_boundary = np.concatenate((2*x_boundary, 2*y_boundary+1))
+    disp_boundary = np.concatenate((2*x_boundary + 1, 2*y_boundary))
     disp_boundary = sorted(disp_boundary)
     # print(len(disp_boundary))
 
