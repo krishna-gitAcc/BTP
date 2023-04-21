@@ -67,7 +67,7 @@ def solve_fem_plat_with_hole(N, E, nu, ngp2d, ngp1d, el_type, problem_type, doma
     connectivity = mesh_obj.connectivity()
 
     K_global = stiffness_matrix.global_stiffness(coord, connectivity, E, nu, el_type, problem_type, ngp2d)
-
+    # print(K_global)
     #Drichle boundary condition.
     counter = 0
 
@@ -76,15 +76,18 @@ def solve_fem_plat_with_hole(N, E, nu, ngp2d, ngp1d, el_type, problem_type, doma
     # print(x_boundary, y_boundary)
     disp_boundary = np.concatenate((2*x_boundary + 1, 2*y_boundary))
     disp_boundary = sorted(disp_boundary)
-    # print(len(disp_boundary))
+    # print((disp_boundary))
 
     no_dof = 2*coord.shape[0]
     row_column_to_keep = np.setdiff1d(np.arange(0, no_dof, 1), disp_boundary)
+    # print(row_column_to_keep)
     K_reduced = K_global[row_column_to_keep, :][:, row_column_to_keep]
-
-    Force_global = force_vector.f_global_plat_with_hole(N, coord, connectivity, T, ngp2d, ngp1d)
-
-    F_reduced = Force_global[row_column_to_keep, :]
+    # print(K_reduced)
+    force_global = force_vector.f_global_plat_with_hole(N, coord, connectivity, T, ngp2d, ngp1d)
+    # print(force_global)
+    # force_global = force_vector.f_global_plat_with_hole_test(N, coord, connectivity, T, ngp2d, ngp1d)
+    # print(force_global)
+    F_reduced = force_global[row_column_to_keep, :]
     u_reduced = spsolve(K_reduced, F_reduced).reshape(-1, 1)
     u_node = np.zeros([no_dof, 1])
     u_node[row_column_to_keep, :] = u_reduced

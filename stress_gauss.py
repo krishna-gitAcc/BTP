@@ -23,6 +23,7 @@ def get_element_stress(ele, ngp, el_type, connect,coord, u,C):
         ind[(2*i)+1]=node[i]*2+1
 
     u_el=u[ind]
+    u_el = u_el.reshape((8, 1))
 
     gp, weights = quadrature.quadrature(ngp)
 

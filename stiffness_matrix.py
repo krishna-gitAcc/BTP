@@ -46,7 +46,8 @@ def get_element_stiffness(ele, coord, connect, E, nu, el_type, problem_type, ngp
             J = shape_func.J
             B = shape_func.get_B_matrix()
             K_ele += (B.T @ C @ B) * weights[i] * weights[j] * np.linalg.det(J)
-
+    # print(K_ele)
+    # print(K_ele.shape)
     return K_ele
 
 
@@ -82,7 +83,7 @@ def global_stiffness(coord, connect, E, nu, el_type, problem_type, ngp):
     #     K_temp[i, :, :] = K_par[i]
 
     K_temp = np.array(K_par)
-    # print(K_par)
+    # print(K_temp)
 
     I = np.zeros((n_ele, K_temp.shape[1] ** 2))
     J = np.zeros((n_ele, K_temp.shape[1] ** 2))
@@ -103,5 +104,66 @@ def global_stiffness(coord, connect, E, nu, el_type, problem_type, ngp):
     K_global = coo_matrix((V, (I, J)), shape=(2 * coord.shape[0], 2 * coord.shape[0]))
     # Converting the global stiffness matrix to LIL format to perform indexing and slicing operations
     K_global = K_global.tocsr()
+
+    return K_global
+
+def global_stiffness_plat_with_hole(coord, connect, E, nu, el_type, problem_type, ngp):
+    """Function to calculate the global stiffness matrix
+
+    Inputs:
+    1) coord = coordinate array
+    2) connect = connectivity array
+    3) E = Young's Modulus
+    4) nu = Poisson's ratio
+    5) el_type = type of element used for meshing
+        el_type = 0 (4 noded quadrilateral)
+        el_type = 1 (8 noded quadrilateral)
+    6) problem_type = type of 2D elasticity problem
+        problem_type = 0 (plane stress)
+        problem_type = 1 (plane strain)
+    7) ngp = number of Gauss points in each direction used for integration
+
+    Output:
+    K_global = global stiffness matrix"""
+
+    n_ele = connect.shape[0]    # No. of elements
+    node_perele = connect.shape[1]  # No. of nodes per element
+    ndof_perele = 2*node_perele # No. of DOF per element
+    K_par = Parallel(n_jobs=-1)(delayed(get_element_stiffness)(ele, coord, connect, E, nu, el_type, problem_type, ngp)
+                               for ele in range(n_ele))
+
+    K_temp = np.array(K_par)
+    # print(K_temp.shape)
+
+    dof = np.zeros((n_ele, 2*node_perele), dtype = "int64")
+    for j in range(connect.shape[1]):
+        dof[:, 2*j] = 2*connect[:, j]
+        dof[:, 2*j+1] = 2*connect[:, j] + 1
+    # print(dof)
+    no_dof = 2*coord.shape[0]
+
+    K_global = np.zeros((no_dof, no_dof))
+
+    for i in range(K_temp.shape[0]):
+        K_global[dof[i][:, np.newaxis], dof[i]] +=K_temp[i]
+    # print(K_global)
+    # print(K_global.shape)
+
+    # dof = np.zeros((n_ele, 2 * node_perele))
+    # for j in range(connect.shape[1]):
+    #     dof[:, 2 * j] = 2 * connect[:, j]
+    #     dof[:, 2 * j + 1] = 2 * connect[:, j] + 1
+
+    # for i in range(dof.shape[1]):
+    #     I[:, i*ndof_perele:(i+1)*ndof_perele] = dof[:, i].reshape(dof.shape[0], 1)*np.ones((dof.shape[0], ndof_perele))
+    #     J[:, i*ndof_perele:(i+1)*ndof_perele] = dof
+
+    # I = I.flatten()
+    # J = J.flatten()
+    # V = K_temp.flatten()
+    # # Forming the global stiffness matrix in COO format
+    # K_global = coo_matrix((V, (I, J)), shape=(2 * coord.shape[0], 2 * coord.shape[0]))
+    # # Converting the global stiffness matrix to LIL format to perform indexing and slicing operations
+    # K_global = K_global.tocsr()
 
     return K_global

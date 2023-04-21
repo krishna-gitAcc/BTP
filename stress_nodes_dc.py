@@ -25,7 +25,7 @@ def stress_dc(connect, coord, u, nel, el_type, C):
     para_nodes=np.array([[-1,-1],[1,-1],[1,1],[-1,1]])
     stress_nodes=np.zeros((np.amax(connect)+1,4))
     strain_nodes=np.zeros((np.amax(connect)+1,4))
-    
+
     for i in range(nel):
         node = connect[i, :]
         vertex_coord = coord[node, :]
@@ -36,6 +36,7 @@ def stress_dc(connect, coord, u, nel, el_type, C):
             ind[(2*p)+1]=node[p]*2+1
 
         u_el=u[ind]
+        u_el = u_el.reshape((8,1))
 
         for j in range(4):
             xi = para_nodes[j][0]
@@ -61,7 +62,7 @@ def stress_dc(connect, coord, u, nel, el_type, C):
                 strain_nodes[nd][0:3]=strain_i_n.reshape(3)
                 stress_nodes[nd][3]=1
                 strain_nodes[nd][3]=1
-                
+
     stress_nodes=np.delete(stress_nodes, 3,1)
     strain_nodes=np.delete(strain_nodes, 3,1)
     return stress_nodes, strain_nodes

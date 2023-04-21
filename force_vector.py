@@ -103,8 +103,8 @@ def f_global(coord, connect, b, T, bc_type, el_type, ngp2d, ngp1d):
                                     for ele in range(n_ele))
 
     f_array = np.array(f_body_par) + np.array(f_nbc_par)
-    # print(f_array.shape)
-
+    print(f_nbc_par)
+    print(len(f_nbc_par))
     f_global = np.zeros((n_dof, 1))
     for ele in range(n_ele):
         dof_ele = np.zeros((2*connect.shape[1],), dtype="int64")
@@ -144,9 +144,40 @@ def f_global_plat_with_hole(nx,coord, connectivity, T, ngp2d, ngp1d):
             # print(T.shape)
             f_vector = np.dot(N, T.T) * j * weight + f_vector
             # print(f_vector.shape)
-            f_global[global_dof_number, :] += f_vector
+        # print(f_vector)
+        f_global[global_dof_number, :] += f_vector
 
     return f_global
 
 
+def f_global_plat_with_hole_test(nx,coord, connectivity, T, ngp2d, ngp1d):
+    n_ele = connectivity.shape[0];
+    n_node = coord.shape[0];
+    n_dof = 2*n_node;
+    surf_ele = np.arange(nx-1, nx*nx, nx)
+    f_global = np.zeros([n_dof,1]);
+    t = T.reshape(2, 1)
+    gp, weights = quadrature.quadrature(ngp1d)
 
+    for i in surf_ele:
+        node_1 = connectivity[i, 1];
+        node_2 = connectivity[i, 2];
+        global_dof_number = np.array([2*node_1, 2*node_1+1, 2*node_2, 2*node_2+1]);
+        fe = np.zeros((4, 1));
+        node_1_coord = coord[node_1,:];
+        node_2_coord = coord[node_2,:];
+        le = np.linalg.norm(node_1_coord-node_2_coord)
+        J = le/2;
+        f_vector = np.zeros([8,1])
+        xi = 1;
+        for j in range(ngp1d):
+            eta = gp[j]
+            shape_func = shape_function.ShapeFunction(xi, eta, 0)
+            N = shape_func.get_N_matrix()
+            f_vector+=(N.T@t)*weights[j]*J
+            dof_ele = np.zeros((2*connectivity.shape[1],), dtype = "int64")
+            for k in range(connectivity.shape[1]):
+                dof_ele[2*k] = 2*connectivity[i, k]
+                dof_ele[2*k+1] = 2*connectivity[i, k]+1
+            f_global[dof_ele, :] += f_vector
+    return f_global
