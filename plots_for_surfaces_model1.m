@@ -1,7 +1,7 @@
 clc;
 clear all;
 close all;
-f = readtable('mult_e_data/ms5/all_matlab_train_model1_ref_x_y_xy.csv');
+f = readtable('Results/all_matlab_train_model1_ref_x_y_xy.csv');
 m = 5;
 x = f{ :, 2};
 y = f{ :, 3};
