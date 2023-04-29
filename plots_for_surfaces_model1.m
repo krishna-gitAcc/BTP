@@ -6,26 +6,30 @@ m = 5;
 x = f{ :, 2};
 y = f{ :, 3};
 ref = f{ :, 4};
+% scatter(x, y)
 err_spr_perc_x = f{ :, 22};
+err_spr_perc_x = err_spr_perc_x/100;
 err_spr_perc_y = f{ :, 23};
+err_spr_perc_y = err_spr_perc_y/100;
 err_spr_perc_xy = f{ :, 24};
-
+err_spr_perc_xy = err_spr_perc_xy/100;
 err_ann_perc_x = f{ :, 25};
+% err_ann_perc_x = err_ann_perc_x/100;
 err_ann_perc_y = f{ :, 26};
+% err_ann_perc_y = err_ann_perc_y/100;
 err_ann_perc_xy = f{ :, 27};
+% err_ann_perc_xy = err_ann_perc_xy/100;
+xq = linspace (min(x), max(x), 100);
+yq = linspace (min(y), max(y), 100);
+[X, Y] = meshgrid(xq, yq);
+Z1 = griddata(x, y, err_spr_perc_x, X, Y);
+Z2 = griddata(x, y, err_spr_perc_y, X, Y);
+Z3 = griddata(x, y, err_spr_perc_xy, X, Y);
+Z4 = griddata(x, y, err_ann_perc_x, X, Y);
+Z5 = griddata(x, y, err_ann_perc_y, X, Y);
+Z6 = griddata(x, y, err_ann_perc_xy, X, Y);
 
-x_u = x(1 : m + 1);
-[X] = meshgrid(x_u);
-Y = reshape(y, size(X));
-Z1 = reshape(err_spr_perc_x, size(X));
-Z2 = reshape(err_spr_perc_y, size(X));
-Z3 = reshape(err_spr_perc_xy, size(X));
-
-Z4 = reshape(err_ann_perc_x, size(X));
-Z5 = reshape(err_ann_perc_y, size(X));
-Z6 = reshape(err_ann_perc_xy, size(X));
-
-% figure1;
+% % figure1;
 f1 = figure('Name', 'SPR_X');
 surf(X, Y, Z1);
 view(2);
@@ -36,8 +40,7 @@ ylabel(a, 'Absolute Percentage Error (%)', 'FontSize', 15);
 xlabel('X-coordinate');
 ylabel('Y-coordinate');
 zlabel('Percentage Error');
-
-% hold on;
+%hold on;
 % figure2;
 f2 = figure('Name', 'SPR_Y');
 surf(X, Y, Z2);
@@ -50,7 +53,7 @@ xlabel('X-coordinate');
 ylabel('Y-coordinate');
 zlabel('Percentage Error');
 
-hold on;
+% hold on;
 % figure3;
 f3 = figure('Name', 'SPR_XY');
 surf(X, Y, Z3);
@@ -62,9 +65,9 @@ ylabel(a, 'Absolute Percentage Error (%)', 'FontSize', 15);
 xlabel('X-coordinate');
 ylabel('Y-coordinate');
 zlabel('Percentage Error');
-
-hold on;
-% figure3;
+%
+% hold on;
+% % figure3;
 f4 = figure('Name', 'ANN_X');
 surf(X, Y, Z4);
 view(2);
@@ -75,9 +78,9 @@ ylabel(a, 'Absolute Percentage Error (%)', 'FontSize', 15);
 xlabel('X-coordinate');
 ylabel('Y-coordinate');
 zlabel('Percentage Error');
-
-hold on;
-% figure3;
+%
+% hold on;
+% % figure3;
 f5 = figure('Name', 'ANN_Y');
 surf(X, Y, Z5);
 view(2);
@@ -88,8 +91,8 @@ ylabel(a, 'Absolute Percentage Error (%)', 'FontSize', 15);
 xlabel('X-coordinate');
 ylabel('Y-coordinate');
 zlabel('Percentage Error');
-hold on;
-% figure3;
+% hold on;
+% % figure3;
 f6 = figure('Name', 'ANN_XY');
 surf(X, Y, Z6);
 view(2);
@@ -100,7 +103,7 @@ ylabel(a, 'Absolute Percentage Error (%)', 'FontSize', 15);
 xlabel('X-coordinate');
 ylabel('Y-coordinate');
 zlabel('Percentage Error');
-
+%
 exportgraphics(f1, 'Final_figures_surface/model1/model_1_spr_x_aperc.png', 'Resolution', 600);
 exportgraphics(f2, 'Final_figures_surface/model1/model_1_spr_y_aperc.png', 'Resolution', 600);
 exportgraphics(f3, 'Final_figures_surface/model1/model_1_spr_xy_aperc.png', 'Resolution', 600);
